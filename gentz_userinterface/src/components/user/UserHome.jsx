@@ -28,7 +28,9 @@ import {
   FaBox,
   FaUser,
   FaSignOutAlt,
-  FaTimes
+  FaTimes,
+  FaChevronLeft,
+  FaChevronRight
 } from "react-icons/fa";
 import api from "../services/axios";
 
@@ -60,6 +62,9 @@ const UserHome = () => {
   // Cart and Wishlist states
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  
+  // Image carousel state - track current image for each product
+  const [currentImageIndex, setCurrentImageIndex] = useState({});
   
   // Toast notifications
   const [toasts, setToasts] = useState([]);
@@ -132,7 +137,7 @@ const UserHome = () => {
     setFilteredProducts(filtered);
   };
 
-  // Image conversion function
+  // Enhanced image conversion function for first image
   const getImageSrc = (product) => {
     try {
       if (product.imageData && typeof product.imageData === 'string') {
@@ -155,11 +160,107 @@ const UserHome = () => {
         return `data:${mimeType};base64,${base64String}`;
       }
 
+      if (product.imageData && typeof product.imageData === 'object') {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData));
+          const base64String = btoa(String.fromCharCode.apply(null, uint8Array));
+          const mimeType = product.imageType || 'image/jpeg';
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error('Object conversion failed:', conversionError);
+        }
+      }
+
       return null;
     } catch (error) {
       console.error('Error converting image:', error);
       return null;
     }
+  };
+
+  // Enhanced image conversion function for second image
+  const getImageSrc2 = (product) => {
+    try {
+      if (product.imageData2 && typeof product.imageData2 === 'string') {
+        if (product.imageData2.startsWith('data:')) {
+          return product.imageData2;
+        }
+        const mimeType = product.imageType2 || 'image/jpeg';
+        return `data:${mimeType};base64,${product.imageData2}`;
+      }
+      
+      if (product.imageData2 && Array.isArray(product.imageData2)) {
+        const base64String = btoa(String.fromCharCode.apply(null, product.imageData2));
+        const mimeType = product.imageType2 || 'image/jpeg';
+        return `data:${mimeType};base64,${base64String}`;
+      }
+      
+      if (product.imageData2 && product.imageData2.data) {
+        const base64String = btoa(String.fromCharCode.apply(null, product.imageData2.data));
+        const mimeType = product.imageType2 || 'image/jpeg';
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && typeof product.imageData2 === 'object') {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData2));
+          const base64String = btoa(String.fromCharCode.apply(null, uint8Array));
+          const mimeType = product.imageType2 || 'image/jpeg';
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error('Object conversion failed:', conversionError);
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error converting second image:', error);
+      return null;
+    }
+  };
+
+  // Get all available images for a product
+  const getProductImages = (product) => {
+    const images = [];
+    const image1 = getImageSrc(product);
+    const image2 = getImageSrc2(product);
+    
+    if (image1) images.push(image1);
+    if (image2) images.push(image2);
+    
+    return images;
+  };
+
+  // Handle image navigation
+  const handleImageNavigation = (productId, direction) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const images = getProductImages(product);
+    if (images.length <= 1) return;
+
+    const currentIndex = currentImageIndex[productId] || 0;
+    let newIndex;
+
+    if (direction === 'next') {
+      newIndex = currentIndex >= images.length - 1 ? 0 : currentIndex + 1;
+    } else {
+      newIndex = currentIndex <= 0 ? images.length - 1 : currentIndex - 1;
+    }
+
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [productId]: newIndex
+    }));
+  };
+
+  // Get current image for display
+  const getCurrentImage = (product) => {
+    const images = getProductImages(product);
+    if (images.length === 0) return null;
+    
+    const currentIndex = currentImageIndex[product.id] || 0;
+    return images[currentIndex] || images[0];
   };
 
   // Cart functions
@@ -174,32 +275,32 @@ const UserHome = () => {
     localStorage.setItem(`cart_${user?.id}`, JSON.stringify(cartData));
   };
 
-   const addToCart = (product) => {
-  if (!user) {
-    showToast("Please login to add items to cart", "warning");
-    navigate("/login");
-    return;
-  }
-
-  const existingItem = cart.find((item) => item.id === product.id);
-  let newCart;
-
-  if (existingItem) {
-    if (existingItem.quantity >= product.stockQuantity) {
-      showToast("Cannot add more items. Stock limit reached!", "warning");
+  const addToCart = (product) => {
+    if (!user) {
+      showToast("Please login to add items to cart", "warning");
+      navigate("/login");
       return;
     }
-    newCart = cart.map((item) =>
-      item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-    );
-  } else {
-    newCart = [...cart, { ...product, quantity: 1 }];
-  }
 
-  setCart(newCart);
-  saveCartToStorage(newCart);
-  dispatchStorageEvent("cartUpdated"); 
-  showToast(`${product.name} added to cart!`, "success");
+    const existingItem = cart.find((item) => item.id === product.id);
+    let newCart;
+
+    if (existingItem) {
+      if (existingItem.quantity >= product.stockQuantity) {
+        showToast("Cannot add more items. Stock limit reached!", "warning");
+        return;
+      }
+      newCart = cart.map((item) =>
+        item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+      );
+    } else {
+      newCart = [...cart, { ...product, quantity: 1 }];
+    }
+
+    setCart(newCart);
+    saveCartToStorage(newCart);
+    dispatchStorageEvent("cartUpdated"); 
+    showToast(`${product.name} added to cart!`, "success");
   };
 
   // Wishlist functions
@@ -215,27 +316,27 @@ const UserHome = () => {
   };
 
   const toggleWishlist = (product) => {
-  if (!user) {
-    showToast("Please login to add items to wishlist", "warning");
-    navigate("/login");
-    return;
-  }
+    if (!user) {
+      showToast("Please login to add items to wishlist", "warning");
+      navigate("/login");
+      return;
+    }
 
-  const isInWishlist = wishlist.some(item => item.id === product.id);
-  let newWishlist;
+    const isInWishlist = wishlist.some(item => item.id === product.id);
+    let newWishlist;
 
-  if (isInWishlist) {
-    newWishlist = wishlist.filter(item => item.id !== product.id);
-    showToast(`${product.name} removed from wishlist`, "info");
-  } else {
-    newWishlist = [...wishlist, product];
-    showToast(`${product.name} added to wishlist!`, "success");
-  }
+    if (isInWishlist) {
+      newWishlist = wishlist.filter(item => item.id !== product.id);
+      showToast(`${product.name} removed from wishlist`, "info");
+    } else {
+      newWishlist = [...wishlist, product];
+      showToast(`${product.name} added to wishlist!`, "success");
+    }
 
-  setWishlist(newWishlist);
-  saveWishlistToStorage(newWishlist);
-  dispatchStorageEvent("wishlistUpdated"); 
-};
+    setWishlist(newWishlist);
+    saveWishlistToStorage(newWishlist);
+    dispatchStorageEvent("wishlistUpdated"); 
+  };
 
   const isInWishlist = (productId) => {
     return wishlist.some(item => item.id === productId);
@@ -274,7 +375,6 @@ const UserHome = () => {
 
   return (
     <div style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
-
       <Container className="py-4">
         {/* Search and Filter Bar */}
         <Row className="mb-4">
@@ -373,17 +473,19 @@ const UserHome = () => {
             </div>
             <Row className="g-4">
               {filteredProducts.map((product) => {
-                const imageSrc = getImageSrc(product);
+                const currentImage = getCurrentImage(product);
+                const productImages = getProductImages(product);
                 const inWishlist = isInWishlist(product.id);
+                const currentIndex = currentImageIndex[product.id] || 0;
                 
                 return (
                   <Col key={product.id} sm={6} md={4} lg={3}>
                     <Card className="h-100 border-0 shadow-sm product-card">
                       <div className="position-relative">
-                        {imageSrc ? (
+                        {currentImage ? (
                           <Card.Img
                             variant="top"
-                            src={imageSrc}
+                            src={currentImage}
                             alt={product.name}
                             style={{
                               height: "250px",
@@ -400,6 +502,65 @@ const UserHome = () => {
                           >
                             <FaBox size={48} className="text-muted" />
                           </div>
+                        )}
+                        
+                        {/* Image Navigation Arrows - Only show if multiple images */}
+                        {productImages.length > 1 && (
+                          <>
+                            <Button
+                              variant="light"
+                              size="sm"
+                              className="position-absolute top-50 start-0 translate-middle-y ms-2 opacity-75"
+                              style={{ 
+                                borderRadius: "50%", 
+                                width: "35px", 
+                                height: "35px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleImageNavigation(product.id, 'prev');
+                              }}
+                            >
+                              <FaChevronLeft size={12} />
+                            </Button>
+                            <Button
+                              variant="light"
+                              size="sm"
+                              className="position-absolute top-50 end-0 translate-middle-y me-2 opacity-75"
+                              style={{ 
+                                borderRadius: "50%", 
+                                width: "35px", 
+                                height: "35px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleImageNavigation(product.id, 'next');
+                              }}
+                            >
+                              <FaChevronRight size={12} />
+                            </Button>
+                            
+                            {/* Image Indicators */}
+                            <div className="position-absolute bottom-0 start-50 translate-middle-x mb-2">
+                              <div className="d-flex gap-1">
+                                {productImages.map((_, index) => (
+                                  <div
+                                    key={index}
+                                    className={`rounded-circle ${
+                                      index === currentIndex ? 'bg-primary' : 'bg-light opacity-50'
+                                    }`}
+                                    style={{ width: "8px", height: "8px" }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          </>
                         )}
                         
                         {/* Wishlist Button */}
@@ -522,7 +683,7 @@ const UserHome = () => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      {/* Product Detail Modal */}
+      {/* Product Detail Modal with Image Carousel */}
       <Modal show={showProductModal} onHide={() => setShowProductModal(false)} size="lg" centered>
         {selectedProduct && (
           <>
@@ -532,19 +693,67 @@ const UserHome = () => {
             <Modal.Body>
               <Row>
                 <Col md={6}>
-                  {getImageSrc(selectedProduct) ? (
-                    <img
-                      src={getImageSrc(selectedProduct)}
-                      alt={selectedProduct.name}
-                      className="img-fluid rounded"
-                      style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <div
-                      className="bg-light d-flex align-items-center justify-content-center rounded"
-                      style={{ height: "400px" }}
-                    >
-                      <FaBox size={64} className="text-muted" />
+                  <div className="position-relative">
+                    {getCurrentImage(selectedProduct) ? (
+                      <img
+                        src={getCurrentImage(selectedProduct)}
+                        alt={selectedProduct.name}
+                        className="img-fluid rounded"
+                        style={{ width: "100%", maxHeight: "400px", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <div
+                        className="bg-light d-flex align-items-center justify-content-center rounded"
+                        style={{ height: "400px" }}
+                      >
+                        <FaBox size={64} className="text-muted" />
+                      </div>
+                    )}
+                    
+                    {/* Modal Image Navigation */}
+                    {getProductImages(selectedProduct).length > 1 && (
+                      <>
+                        <Button
+                          variant="light"
+                          className="position-absolute top-50 start-0 translate-middle-y ms-2"
+                          onClick={() => handleImageNavigation(selectedProduct.id, 'prev')}
+                        >
+                          <FaChevronLeft />
+                        </Button>
+                        <Button
+                          variant="light"
+                          className="position-absolute top-50 end-0 translate-middle-y me-2"
+                          onClick={() => handleImageNavigation(selectedProduct.id, 'next')}
+                        >
+                          <FaChevronRight />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Image Thumbnails */}
+                  {getProductImages(selectedProduct).length > 1 && (
+                    <div className="d-flex gap-2 mt-3">
+                      {getProductImages(selectedProduct).map((image, index) => (
+                        <img
+                          key={index}
+                          src={image}
+                          alt={`${selectedProduct.name} ${index + 1}`}
+                          className={`img-thumbnail ${
+                            (currentImageIndex[selectedProduct.id] || 0) === index ? 'border-primary' : ''
+                          }`}
+                          style={{ 
+                            width: "60px", 
+                            height: "60px", 
+                            objectFit: "cover", 
+                            cursor: "pointer" 
+                          }}
+                          onClick={() => setCurrentImageIndex(prev => ({
+                            ...prev,
+                            [selectedProduct.id]: index
+                          }))}
+                        />
+                      ))}
                     </div>
                   )}
                 </Col>
@@ -633,5 +842,6 @@ const UserHome = () => {
 };
 
 export default UserHome;
+
 
 

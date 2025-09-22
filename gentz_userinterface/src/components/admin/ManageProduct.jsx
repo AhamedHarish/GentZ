@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Button, 
-  Table, 
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Table,
   Badge,
   Alert,
   Spinner,
   Modal,
   Form,
-  InputGroup
+  InputGroup,
 } from "react-bootstrap";
-import { 
-  FaPlus, 
-  FaEdit, 
-  FaTrash, 
+import {
+  FaPlus,
+  FaEdit,
+  FaTrash,
   FaBox,
   FaSearch,
   FaFilter,
-  FaArrowLeft
+  FaArrowLeft,
 } from "react-icons/fa";
 import api from "../services/axios";
 
@@ -36,7 +36,14 @@ const ManageProduct = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
 
-  const categories = ["Shirts", "Pants", "T-shirts", "Hoodies", "Sneakers", "Shades"];
+  const categories = [
+    "Shirts",
+    "Pants",
+    "T-shirts",
+    "Hoodies",
+    "Sneakers",
+    "Shades",
+  ];
 
   useEffect(() => {
     fetchProducts();
@@ -50,7 +57,7 @@ const ManageProduct = () => {
     try {
       setLoading(true);
       const response = await api.get("/products");
-      console.log("Fetched products:", response.data); // Debug log
+      console.log("Fetched products:", response.data);
       setProducts(response.data);
       setError("");
     } catch (err) {
@@ -65,15 +72,20 @@ const ManageProduct = () => {
     let filtered = products;
 
     if (searchTerm) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (product) =>
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.description
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          product.brand?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (categoryFilter) {
-      filtered = filtered.filter(product => product.category === categoryFilter);
+      filtered = filtered.filter(
+        (product) => product.category === categoryFilter
+      );
     }
 
     setFilteredProducts(filtered);
@@ -84,7 +96,7 @@ const ManageProduct = () => {
 
     try {
       await api.delete(`/products/${productToDelete.id}`);
-      setProducts(products.filter(p => p.id !== productToDelete.id));
+      setProducts(products.filter((p) => p.id !== productToDelete.id));
       setShowDeleteModal(false);
       setProductToDelete(null);
       alert("Product deleted successfully!");
@@ -99,75 +111,143 @@ const ManageProduct = () => {
     setShowDeleteModal(true);
   };
 
-  // img conversion function
+  // handle first image
   const getImageSrc = (product) => {
     try {
       console.log("Processing image for product:", product.name, {
         hasImageData: !!product.imageData,
         imageType: product.imageType,
-        imageDataType: typeof product.imageData
+        imageDataType: typeof product.imageData,
       });
 
-      // Method 1: If imageData is already a base64 string
-      if (product.imageData && typeof product.imageData === 'string') {
-        if (product.imageData.startsWith('data:')) {
+      if (product.imageData && typeof product.imageData === "string") {
+        if (product.imageData.startsWith("data:")) {
           return product.imageData;
         }
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${product.imageData}`;
       }
-      
-      // Method 2: If imageData is a byte array
+
       if (product.imageData && Array.isArray(product.imageData)) {
         const base64String = btoa(
           String.fromCharCode.apply(null, product.imageData)
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
-      
-      // Method 3: If imageData is a Uint8Array or similar
+
       if (product.imageData && product.imageData.constructor === Uint8Array) {
         const base64String = btoa(
           String.fromCharCode.apply(null, Array.from(product.imageData))
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
 
-      // Method 4: If imageData is an object with data property (common with some backends)
       if (product.imageData && product.imageData.data) {
         const base64String = btoa(
           String.fromCharCode.apply(null, product.imageData.data)
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
 
-      // Method 5: Try direct conversion if it's an object
-      if (product.imageData && typeof product.imageData === 'object') {
+      if (product.imageData && typeof product.imageData === "object") {
         try {
           const uint8Array = new Uint8Array(Object.values(product.imageData));
           const base64String = btoa(
             String.fromCharCode.apply(null, uint8Array)
           );
-          const mimeType = product.imageType || 'image/jpeg';
+          const mimeType = product.imageType || "image/jpeg";
           return `data:${mimeType};base64,${base64String}`;
         } catch (conversionError) {
-          console.error('Object conversion failed:', conversionError);
+          console.error("Object conversion failed:", conversionError);
         }
       }
 
       console.log("No valid image data found for:", product.name);
       return null;
     } catch (error) {
-      console.error('Error converting image for product:', product.name, error);
+      console.error("Error converting image for product:", product.name, error);
+      return null;
+    }
+  };
+
+  // handle second image
+  const getImageSrc2 = (product) => {
+    try {
+      console.log("Processing image 2 for product:", product.name, {
+        hasImageData2: !!product.imageData2,
+        imageType2: product.imageType2,
+        imageData2Type: typeof product.imageData2,
+      });
+
+      if (product.imageData2 && typeof product.imageData2 === "string") {
+        if (product.imageData2.startsWith("data:")) {
+          return product.imageData2;
+        }
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${product.imageData2}`;
+      }
+
+      if (product.imageData2 && Array.isArray(product.imageData2)) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, product.imageData2)
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && product.imageData2.constructor === Uint8Array) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, Array.from(product.imageData2))
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && product.imageData2.data) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, product.imageData2.data)
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && typeof product.imageData2 === "object") {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData2));
+          const base64String = btoa(
+            String.fromCharCode.apply(null, uint8Array)
+          );
+          const mimeType = product.imageType2 || "image/jpeg";
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error(
+            "Object conversion failed for image 2:",
+            conversionError
+          );
+        }
+      }
+
+      console.log("No valid image 2 data found for:", product.name);
+      return null;
+    } catch (error) {
+      console.error(
+        "Error converting second image for product:",
+        product.name,
+        error
+      );
       return null;
     }
   };
 
   return (
-    <Container fluid className="py-4" style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
+    <Container
+      fluid
+      className="py-4"
+      style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}
+    >
       {/* Header */}
       <Row className="mb-4">
         <Col>
@@ -184,7 +264,9 @@ const ManageProduct = () => {
               <h1 className="display-6 fw-bold text-primary mb-0">
                 Manage Products
               </h1>
-              <p className="text-muted">Add, edit, or remove products from your inventory</p>
+              <p className="text-muted">
+                Add, edit, or remove products from your inventory
+              </p>
             </div>
             <Button
               variant="primary"
@@ -225,8 +307,10 @@ const ManageProduct = () => {
                     onChange={(e) => setCategoryFilter(e.target.value)}
                   >
                     <option value="">All Categories</option>
-                    {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
                     ))}
                   </Form.Select>
                 </Col>
@@ -281,13 +365,14 @@ const ManageProduct = () => {
                 <div className="text-center py-5">
                   <FaBox size={48} className="text-muted mb-3" />
                   <h5 className="text-muted">
-                    {products.length === 0 ? "No products found" : "No products match your filters"}
+                    {products.length === 0
+                      ? "No products found"
+                      : "No products match your filters"}
                   </h5>
                   <p className="text-muted">
-                    {products.length === 0 
-                      ? "Start by adding your first product" 
-                      : "Try adjusting your search or filter criteria"
-                    }
+                    {products.length === 0
+                      ? "Start by adding your first product"
+                      : "Try adjusting your search or filter criteria"}
                   </p>
                   {products.length === 0 && (
                     <Button
@@ -304,7 +389,7 @@ const ManageProduct = () => {
                   <Table hover className="mb-0">
                     <thead className="bg-light">
                       <tr>
-                        <th>Image</th>
+                        <th>Images</th>
                         <th>Product Details</th>
                         <th>Category</th>
                         <th>Price</th>
@@ -316,43 +401,71 @@ const ManageProduct = () => {
                     <tbody>
                       {filteredProducts.map((product) => {
                         const imageSrc = getImageSrc(product);
-                        
+                        const imageSrc2 = getImageSrc2(product);
+
                         return (
                           <tr key={product.id}>
                             <td>
-                              {imageSrc ? (
-                                <img
-                                  src={imageSrc}
-                                  alt={product.name}
-                                  style={{
-                                    width: "60px",
-                                    height: "60px",
-                                    objectFit: "cover",
-                                    borderRadius: "8px",
-                                    border: "1px solid #dee2e6"
-                                  }}
-                                  onError={(e) => {
-                                    console.error('Image failed to load for:', product.name);
-                                    e.target.style.display = 'none';
-                                    e.target.nextSibling.style.display = 'flex';
-                                  }}
-                                />
-                              ) : null}
-                              <div
-                                className="bg-light d-flex align-items-center justify-content-center"
-                                style={{
-                                  width: "60px",
-                                  height: "60px",
-                                  borderRadius: "8px",
-                                  display: imageSrc ? "none" : "flex"
-                                }}
-                              >
-                                <FaBox className="text-muted" />
+                              <div className="d-flex gap-1">
+                                {imageSrc ? (
+                                  <img
+                                    src={imageSrc}
+                                    alt={`${product.name} - Image 1`}
+                                    style={{
+                                      width: "50px",
+                                      height: "50px",
+                                      objectFit: "cover",
+                                      borderRadius: "8px",
+                                      border: "1px solid #dee2e6",
+                                    }}
+                                    onError={(e) => {
+                                      console.error(
+                                        "Image 1 failed to load for:",
+                                        product.name
+                                      );
+                                      e.target.style.display = "none";
+                                    }}
+                                  />
+                                ) : (
+                                  <div
+                                    className="bg-light d-flex align-items-center justify-content-center"
+                                    style={{
+                                      width: "50px",
+                                      height: "50px",
+                                      borderRadius: "8px",
+                                      border: "1px solid #dee2e6",
+                                    }}
+                                  >
+                                    <FaBox className="text-muted" />
+                                  </div>
+                                )}
+                                {imageSrc2 && (
+                                  <img
+                                    src={imageSrc2}
+                                    alt={`${product.name} - Image 2`}
+                                    style={{
+                                      width: "50px",
+                                      height: "50px",
+                                      objectFit: "cover",
+                                      borderRadius: "8px",
+                                      border: "1px solid #dee2e6",
+                                    }}
+                                    onError={(e) => {
+                                      console.error(
+                                        "Image 2 failed to load for:",
+                                        product.name
+                                      );
+                                      e.target.style.display = "none";
+                                    }}
+                                  />
+                                )}
                               </div>
                             </td>
                             <td>
                               <div>
-                                <div className="fw-semibold">{product.name}</div>
+                                <div className="fw-semibold">
+                                  {product.name}
+                                </div>
                                 <small className="text-muted">
                                   {product.brand || "No brand"}
                                 </small>
@@ -367,17 +480,27 @@ const ManageProduct = () => {
                             </td>
                             <td className="fw-semibold">₹{product.price}</td>
                             <td>
-                              <Badge 
-                                bg={parseInt(product.stockQuantity) > 0 ? "success" : "danger"}
+                              <Badge
+                                bg={
+                                  parseInt(product.stockQuantity) > 0
+                                    ? "success"
+                                    : "danger"
+                                }
                               >
                                 {product.stockQuantity} units
                               </Badge>
                             </td>
                             <td>
-                              <Badge 
-                                bg={product.productAvailable ? "success" : "danger"}
+                              <Badge
+                                bg={
+                                  product.productAvailable
+                                    ? "success"
+                                    : "danger"
+                                }
                               >
-                                {product.productAvailable ? "Available" : "Unavailable"}
+                                {product.productAvailable
+                                  ? "Available"
+                                  : "Unavailable"}
                               </Badge>
                             </td>
                             <td>
@@ -385,7 +508,11 @@ const ManageProduct = () => {
                                 <Button
                                   variant="outline-primary"
                                   size="sm"
-                                  onClick={() => navigate(`/admin/products/update/${product.id}`)}
+                                  onClick={() =>
+                                    navigate(
+                                      `/admin/products/update/${product.id}`
+                                    )
+                                  }
                                   title="Edit Product"
                                 >
                                   <FaEdit />
@@ -413,12 +540,17 @@ const ManageProduct = () => {
       </Row>
 
       {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete "{productToDelete?.name}"? This action cannot be undone.
+          Are you sure you want to delete "{productToDelete?.name}"? This action
+          cannot be undone.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
@@ -434,4 +566,3 @@ const ManageProduct = () => {
 };
 
 export default ManageProduct;
-

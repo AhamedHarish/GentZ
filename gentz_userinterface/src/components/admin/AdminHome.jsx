@@ -1,27 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Button, 
-  Table, 
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Table,
   Badge,
   Alert,
   Spinner,
-  Modal
+  Modal,
 } from "react-bootstrap";
-import { 
-  FaPlus, 
-  FaEdit, 
-  FaCog, 
-  FaTrash, 
+import {
+  FaPlus,
+  FaEdit,
+  FaCog,
+  FaTrash,
   FaEye,
   FaUsers,
   FaBox,
   FaRupeeSign,
-  FaChartLine
+  FaChartLine,
 } from "react-icons/fa";
 import api from "../services/axios";
 
@@ -57,7 +57,7 @@ const AdminHome = () => {
 
     try {
       await api.delete(`/products/${productToDelete.id}`);
-      setProducts(products.filter(p => p.id !== productToDelete.id));
+      setProducts(products.filter((p) => p.id !== productToDelete.id));
       setShowDeleteModal(false);
       setProductToDelete(null);
       alert("Product deleted successfully!");
@@ -72,61 +72,127 @@ const AdminHome = () => {
     setShowDeleteModal(true);
   };
 
+  // Updated function to handle first image
   const getImageSrc = (product) => {
     try {
-      // Method 1: If imageData is already a base64 string
-      if (product.imageData && typeof product.imageData === 'string') {
-        // Check if it already has data URL prefix
-        if (product.imageData.startsWith('data:')) {
+      if (product.imageData && typeof product.imageData === "string") {
+        if (product.imageData.startsWith("data:")) {
           return product.imageData;
         }
-        // If not, add the prefix
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${product.imageData}`;
       }
-      
-      // Method 2: If imageData is a byte array
+
       if (product.imageData && Array.isArray(product.imageData)) {
         const base64String = btoa(
           String.fromCharCode.apply(null, product.imageData)
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
-      
-      // Method 3: If imageData is a Uint8Array or similar
+
       if (product.imageData && product.imageData.constructor === Uint8Array) {
         const base64String = btoa(
           String.fromCharCode.apply(null, Array.from(product.imageData))
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
 
-      // Method 4: If imageData is an object with data property
       if (product.imageData && product.imageData.data) {
         const base64String = btoa(
           String.fromCharCode.apply(null, product.imageData.data)
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData && typeof product.imageData === "object") {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData));
+          const base64String = btoa(
+            String.fromCharCode.apply(null, uint8Array)
+          );
+          const mimeType = product.imageType || "image/jpeg";
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error("Object conversion failed:", conversionError);
+        }
       }
 
       return null;
     } catch (error) {
-      console.error('Error converting image:', error);
+      console.error("Error converting image:", error);
+      return null;
+    }
+  };
+
+  // New function to handle second image
+  const getImageSrc2 = (product) => {
+    try {
+      if (product.imageData2 && typeof product.imageData2 === "string") {
+        if (product.imageData2.startsWith("data:")) {
+          return product.imageData2;
+        }
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${product.imageData2}`;
+      }
+
+      if (product.imageData2 && Array.isArray(product.imageData2)) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, product.imageData2)
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && product.imageData2.constructor === Uint8Array) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, Array.from(product.imageData2))
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && product.imageData2.data) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, product.imageData2.data)
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && typeof product.imageData2 === "object") {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData2));
+          const base64String = btoa(
+            String.fromCharCode.apply(null, uint8Array)
+          );
+          const mimeType = product.imageType2 || "image/jpeg";
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error(
+            "Object conversion failed for image 2:",
+            conversionError
+          );
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error converting second image:", error);
       return null;
     }
   };
 
   return (
-    <div className="admin-home-container" 
-
-    style={{ 
-       backgroundColor: "#f8f9fa",
-       minHeight: "100vh" 
-       }}>
-
+    <div
+      className="admin-home-container"
+      style={{
+        backgroundColor: "#f8f9fa",
+        minHeight: "100vh",
+      }}
+    >
       <Container fluid className="py-4">
         {/* Header Section */}
         <Row className="mb-4">
@@ -137,7 +203,8 @@ const AdminHome = () => {
                   Admin Dashboard
                 </h1>
                 <p className="text-muted mb-0">
-                  Welcome back, {user?.name || "Admin"}! Manage your store efficiently.
+                  Welcome back, {user?.name || "Admin"}! Manage your store
+                  efficiently.
                 </p>
               </div>
             </div>
@@ -252,7 +319,9 @@ const AdminHome = () => {
                   <div className="text-center py-5">
                     <FaBox size={48} className="text-muted mb-3" />
                     <h5 className="text-muted">No products found</h5>
-                    <p className="text-muted">Start by adding your first product</p>
+                    <p className="text-muted">
+                      Start by adding your first product
+                    </p>
                     <Button
                       variant="primary"
                       onClick={() => navigate("/admin/products/add")}
@@ -266,7 +335,7 @@ const AdminHome = () => {
                     <Table hover className="mb-0">
                       <thead className="bg-light">
                         <tr>
-                          <th>Image</th>
+                          <th>Images</th>
                           <th>Name</th>
                           <th>Category</th>
                           <th>Price</th>
@@ -278,32 +347,71 @@ const AdminHome = () => {
                       <tbody>
                         {products.map((product) => {
                           const imageSrc = getImageSrc(product);
-                          
+                          const imageSrc2 = getImageSrc2(product);
+
                           return (
                             <tr key={product.id}>
                               <td>
-                                {imageSrc ? (
-                                  <img
-                                    src={imageSrc}
-                                    alt={product.name}
-                                    style={{
-                                      width: "50px",
-                                      height: "50px",
-                                      objectFit: "cover",
-                                      borderRadius: "8px",
-                                      border: "1px solid #dee2e6"
-                                    }}
-                                    onError={(e) => {
-                                      console.error('Image failed to load:', product.name);
-                                      e.target.style.display = 'none';
-                                      e.target.nextSibling.style.display = 'flex';
-                                    }}
-                                  />
-                                ) : null}
+                                <div className="d-flex gap-1">
+                                  {imageSrc ? (
+                                    <img
+                                      src={imageSrc}
+                                      alt={`${product.name} - Image 1`}
+                                      style={{
+                                        width: "40px",
+                                        height: "40px",
+                                        objectFit: "cover",
+                                        borderRadius: "6px",
+                                        border: "1px solid #dee2e6",
+                                      }}
+                                      onError={(e) => {
+                                        console.error(
+                                          "Image 1 failed to load:",
+                                          product.name
+                                        );
+                                        e.target.style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    <div
+                                      className="bg-light d-flex align-items-center justify-content-center"
+                                      style={{
+                                        width: "40px",
+                                        height: "40px",
+                                        borderRadius: "6px",
+                                        border: "1px solid #dee2e6",
+                                      }}
+                                    >
+                                      <FaBox className="text-muted" size={16} />
+                                    </div>
+                                  )}
+                                  {imageSrc2 ? (
+                                    <img
+                                      src={imageSrc2}
+                                      alt={`${product.name} - Image 2`}
+                                      style={{
+                                        width: "40px",
+                                        height: "40px",
+                                        objectFit: "cover",
+                                        borderRadius: "6px",
+                                        border: "1px solid #dee2e6",
+                                      }}
+                                      onError={(e) => {
+                                        console.error(
+                                          "Image 2 failed to load:",
+                                          product.name
+                                        );
+                                        e.target.style.display = "none";
+                                      }}
+                                    />
+                                  ) : null}
+                                </div>
                               </td>
                               <td>
                                 <div>
-                                  <div className="fw-semibold">{product.name}</div>
+                                  <div className="fw-semibold">
+                                    {product.name}
+                                  </div>
                                   <small className="text-muted">
                                     {product.brand || "No brand"}
                                   </small>
@@ -314,17 +422,27 @@ const AdminHome = () => {
                               </td>
                               <td className="fw-semibold">₹{product.price}</td>
                               <td>
-                                <Badge 
-                                  bg={parseInt(product.stockQuantity) > 0 ? "success" : "danger"}
+                                <Badge
+                                  bg={
+                                    parseInt(product.stockQuantity) > 0
+                                      ? "success"
+                                      : "danger"
+                                  }
                                 >
                                   {product.stockQuantity} units
                                 </Badge>
                               </td>
                               <td>
-                                <Badge 
-                                  bg={product.productAvailable ? "success" : "danger"}
+                                <Badge
+                                  bg={
+                                    product.productAvailable
+                                      ? "success"
+                                      : "danger"
+                                  }
                                 >
-                                  {product.productAvailable ? "Available" : "Unavailable"}
+                                  {product.productAvailable
+                                    ? "Available"
+                                    : "Unavailable"}
                                 </Badge>
                               </td>
                               <td>
@@ -332,7 +450,11 @@ const AdminHome = () => {
                                   <Button
                                     variant="outline-primary"
                                     size="sm"
-                                    onClick={() => navigate(`/admin/products/update/${product.id}`)}
+                                    onClick={() =>
+                                      navigate(
+                                        `/admin/products/update/${product.id}`
+                                      )
+                                    }
                                     title="Edit Product"
                                   >
                                     <FaEdit />
@@ -361,12 +483,17 @@ const AdminHome = () => {
       </Container>
 
       {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Are you sure you want to delete "{productToDelete?.name}"? This action cannot be undone.
+          Are you sure you want to delete "{productToDelete?.name}"? This action
+          cannot be undone.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>

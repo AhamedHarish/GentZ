@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Badge, Alert } from 'react-bootstrap';
-import { FaHeart, FaRegHeart, FaShoppingCart, FaBox } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaShoppingCart, FaBox, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import HeroCarousel from './HeroCarousel';
 import SummerSaleSection from './SummerSaleSection';
@@ -14,6 +14,9 @@ const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
+  
+  // Image carousel state - track current image for each product
+  const [currentImageIndex, setCurrentImageIndex] = useState({});
 
   useEffect(() => {
     fetchFeaturedProducts();
@@ -35,6 +38,7 @@ const Home = () => {
     }
   };
 
+  // Enhanced image conversion function for first image
   const getImageSrc = (product) => {
     try {
       if (product.imageData && typeof product.imageData === 'string') {
@@ -57,11 +61,107 @@ const Home = () => {
         return `data:${mimeType};base64,${base64String}`;
       }
 
+      if (product.imageData && typeof product.imageData === 'object') {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData));
+          const base64String = btoa(String.fromCharCode.apply(null, uint8Array));
+          const mimeType = product.imageType || 'image/jpeg';
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error('Object conversion failed:', conversionError);
+        }
+      }
+
       return null;
     } catch (error) {
       console.error('Error converting image:', error);
       return null;
     }
+  };
+
+  // Enhanced image conversion function for second image
+  const getImageSrc2 = (product) => {
+    try {
+      if (product.imageData2 && typeof product.imageData2 === 'string') {
+        if (product.imageData2.startsWith('data:')) {
+          return product.imageData2;
+        }
+        const mimeType = product.imageType2 || 'image/jpeg';
+        return `data:${mimeType};base64,${product.imageData2}`;
+      }
+      
+      if (product.imageData2 && Array.isArray(product.imageData2)) {
+        const base64String = btoa(String.fromCharCode.apply(null, product.imageData2));
+        const mimeType = product.imageType2 || 'image/jpeg';
+        return `data:${mimeType};base64,${base64String}`;
+      }
+      
+      if (product.imageData2 && product.imageData2.data) {
+        const base64String = btoa(String.fromCharCode.apply(null, product.imageData2.data));
+        const mimeType = product.imageType2 || 'image/jpeg';
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && typeof product.imageData2 === 'object') {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData2));
+          const base64String = btoa(String.fromCharCode.apply(null, uint8Array));
+          const mimeType = product.imageType2 || 'image/jpeg';
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error('Object conversion failed:', conversionError);
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error converting second image:', error);
+      return null;
+    }
+  };
+
+  // Get all available images for a product
+  const getProductImages = (product) => {
+    const images = [];
+    const image1 = getImageSrc(product);
+    const image2 = getImageSrc2(product);
+    
+    if (image1) images.push(image1);
+    if (image2) images.push(image2);
+    
+    return images;
+  };
+
+  // Handle image navigation
+  const handleImageNavigation = (productId, direction) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const images = getProductImages(product);
+    if (images.length <= 1) return;
+
+    const currentIndex = currentImageIndex[productId] || 0;
+    let newIndex;
+
+    if (direction === 'next') {
+      newIndex = currentIndex >= images.length - 1 ? 0 : currentIndex + 1;
+    } else {
+      newIndex = currentIndex <= 0 ? images.length - 1 : currentIndex - 1;
+    }
+
+    setCurrentImageIndex(prev => ({
+      ...prev,
+      [productId]: newIndex
+    }));
+  };
+
+  // Get current image for display
+  const getCurrentImage = (product) => {
+    const images = getProductImages(product);
+    if (images.length === 0) return null;
+    
+    const currentIndex = currentImageIndex[product.id] || 0;
+    return images[currentIndex] || images[0];
   };
 
   const showAlert = (message, variant) => {
@@ -112,17 +212,19 @@ const Home = () => {
         ) : (
           <Row className="g-4">
             {products.map((product) => {
-              const imageSrc = getImageSrc(product);
+              const currentImage = getCurrentImage(product);
+              const productImages = getProductImages(product);
+              const currentIndex = currentImageIndex[product.id] || 0;
 
               return (
                 <Col key={product.id} xs={6} sm={6} md={4} lg={3}>
                   <Card className="h-100 border-0 shadow-sm product-card">
                     <div className="position-relative">
-                      {imageSrc ? (
+                      {currentImage ? (
                         <Card.Img
                           variant="top"
                           className="zoom-img"
-                          src={imageSrc}
+                          src={currentImage}
                           alt={product.name}
                           style={{
                             height: "200px",
@@ -141,12 +243,77 @@ const Home = () => {
                         </div>
                       )}
 
+                      {/* Image Navigation Arrows - Only show if multiple images */}
+                      {productImages.length > 1 && (
+                        <>
+                          <Button
+                            variant="light"
+                            size="sm"
+                            className="position-absolute top-50 start-0 translate-middle-y ms-2 opacity-75"
+                            style={{ 
+                              borderRadius: "50%", 
+                              width: "30px", 
+                              height: "30px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              zIndex: 2
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleImageNavigation(product.id, 'prev');
+                            }}
+                          >
+                            <FaChevronLeft size={10} />
+                          </Button>
+                          <Button
+                            variant="light"
+                            size="sm"
+                            className="position-absolute top-50 end-0 translate-middle-y me-2 opacity-75"
+                            style={{ 
+                              borderRadius: "50%", 
+                              width: "30px", 
+                              height: "30px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              zIndex: 2
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleImageNavigation(product.id, 'next');
+                            }}
+                          >
+                            <FaChevronRight size={10} />
+                          </Button>
+                          
+                          {/* Image Indicators */}
+                          <div className="position-absolute bottom-0 start-50 translate-middle-x mb-2" style={{ zIndex: 2 }}>
+                            <div className="d-flex gap-1">
+                              {productImages.map((_, index) => (
+                                <div
+                                  key={index}
+                                  className={`rounded-circle ${
+                                    index === currentIndex ? 'bg-primary' : 'bg-light opacity-50'
+                                  }`}
+                                  style={{ width: "6px", height: "6px" }}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </>
+                      )}
+
                       {/* Wishlist Button */}
                       <Button
                         variant="outline-light"
                         size="sm"
                         className="position-absolute top-0 end-0 m-2"
-                        onClick={() => handleAddToWishlist(product)}
+                        style={{ zIndex: 3 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToWishlist(product);
+                        }}
                       >
                         <FaRegHeart />
                       </Button>
@@ -156,6 +323,7 @@ const Home = () => {
                         <Badge
                           bg="warning"
                           className="position-absolute top-0 start-0 m-2"
+                          style={{ zIndex: 3 }}
                         >
                           Only {product.stockQuantity} left!
                         </Badge>
@@ -229,7 +397,6 @@ const Home = () => {
       </Container>
       <SummerSaleSection />
       <NewCollection />
-
     </div>
   );
 };

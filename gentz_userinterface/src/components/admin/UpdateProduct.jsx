@@ -1,31 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Form, 
-  Button, 
-  Alert, 
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  Alert,
   Spinner,
-  InputGroup
+  InputGroup,
 } from "react-bootstrap";
-import { 
+import {
   FaArrowLeft,
-  FaTag, 
-  FaDollarSign, 
+  FaTag,
+  FaRupeeSign,
   FaBoxes,
   FaImage,
   FaFileAlt,
-  FaSave
+  FaSave,
 } from "react-icons/fa";
 import api from "../services/axios";
 
 const UpdateProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -33,9 +33,9 @@ const UpdateProduct = () => {
     price: "",
     stockQuantity: "",
     brand: "",
-    productAvailable: true
+    productAvailable: true,
   });
-  
+
   const [file, setFile] = useState(null);
   const [file2, setFile2] = useState(null);
   const [currentImage, setCurrentImage] = useState(null);
@@ -48,12 +48,12 @@ const UpdateProduct = () => {
   const [errors, setErrors] = useState({});
 
   const categories = [
-    "Shirts", 
-    "Pants", 
-    "T-shirts", 
-    "Hoodies", 
-    "Sneakers", 
-    "Shades"
+    "Shirts",
+    "Pants",
+    "T-shirts",
+    "Hoodies",
+    "Sneakers",
+    "Shades",
   ];
 
   useEffect(() => {
@@ -65,7 +65,7 @@ const UpdateProduct = () => {
       setLoading(true);
       const response = await api.get(`/products/${id}`);
       const product = response.data;
-      
+
       setFormData({
         name: product.name || "",
         description: product.description || "",
@@ -73,10 +73,10 @@ const UpdateProduct = () => {
         price: product.price || "",
         stockQuantity: product.stockQuantity || "",
         brand: product.brand || "",
-        productAvailable: product.productAvailable !== false
+        productAvailable: product.productAvailable !== false,
       });
 
-      // update img 
+      // update img
       const imageSrc = getImageSrc(product);
       if (imageSrc) {
         setCurrentImage(imageSrc);
@@ -86,7 +86,6 @@ const UpdateProduct = () => {
       if (imageSrc2) {
         setCurrentImage2(imageSrc2);
       }
-      
     } catch (err) {
       console.error("Error fetching product:", err);
       showAlert("Failed to load product details", "danger");
@@ -97,27 +96,27 @@ const UpdateProduct = () => {
 
   const getImageSrc = (product) => {
     try {
-      if (product.imageData && typeof product.imageData === 'string') {
-        if (product.imageData.startsWith('data:')) {
+      if (product.imageData && typeof product.imageData === "string") {
+        if (product.imageData.startsWith("data:")) {
           return product.imageData;
         }
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${product.imageData}`;
       }
-      
+
       if (product.imageData && Array.isArray(product.imageData)) {
         const base64String = btoa(
           String.fromCharCode.apply(null, product.imageData)
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
-      
+
       if (product.imageData && product.imageData.constructor === Uint8Array) {
         const base64String = btoa(
           String.fromCharCode.apply(null, Array.from(product.imageData))
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
 
@@ -125,53 +124,53 @@ const UpdateProduct = () => {
         const base64String = btoa(
           String.fromCharCode.apply(null, product.imageData.data)
         );
-        const mimeType = product.imageType || 'image/jpeg';
+        const mimeType = product.imageType || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
 
-      if (product.imageData && typeof product.imageData === 'object') {
+      if (product.imageData && typeof product.imageData === "object") {
         try {
           const uint8Array = new Uint8Array(Object.values(product.imageData));
           const base64String = btoa(
             String.fromCharCode.apply(null, uint8Array)
           );
-          const mimeType = product.imageType || 'image/jpeg';
+          const mimeType = product.imageType || "image/jpeg";
           return `data:${mimeType};base64,${base64String}`;
         } catch (conversionError) {
-          console.error('Object conversion failed:', conversionError);
+          console.error("Object conversion failed:", conversionError);
         }
       }
 
       return null;
     } catch (error) {
-      console.error('Error converting image:', error);
+      console.error("Error converting image:", error);
       return null;
     }
   };
 
   const getImageSrc2 = (product) => {
     try {
-      if (product.imageData2 && typeof product.imageData2 === 'string') {
-        if (product.imageData2.startsWith('data:')) {
+      if (product.imageData2 && typeof product.imageData2 === "string") {
+        if (product.imageData2.startsWith("data:")) {
           return product.imageData2;
         }
-        const mimeType = product.imageType2 || 'image/jpeg';
+        const mimeType = product.imageType2 || "image/jpeg";
         return `data:${mimeType};base64,${product.imageData2}`;
       }
-      
+
       if (product.imageData2 && Array.isArray(product.imageData2)) {
         const base64String = btoa(
           String.fromCharCode.apply(null, product.imageData2)
         );
-        const mimeType = product.imageType2 || 'image/jpeg';
+        const mimeType = product.imageType2 || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
-      
+
       if (product.imageData2 && product.imageData2.constructor === Uint8Array) {
         const base64String = btoa(
           String.fromCharCode.apply(null, Array.from(product.imageData2))
         );
-        const mimeType = product.imageType2 || 'image/jpeg';
+        const mimeType = product.imageType2 || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
 
@@ -179,51 +178,51 @@ const UpdateProduct = () => {
         const base64String = btoa(
           String.fromCharCode.apply(null, product.imageData2.data)
         );
-        const mimeType = product.imageType2 || 'image/jpeg';
+        const mimeType = product.imageType2 || "image/jpeg";
         return `data:${mimeType};base64,${base64String}`;
       }
 
-      if (product.imageData2 && typeof product.imageData2 === 'object') {
+      if (product.imageData2 && typeof product.imageData2 === "object") {
         try {
           const uint8Array = new Uint8Array(Object.values(product.imageData2));
           const base64String = btoa(
             String.fromCharCode.apply(null, uint8Array)
           );
-          const mimeType = product.imageType2 || 'image/jpeg';
+          const mimeType = product.imageType2 || "image/jpeg";
           return `data:${mimeType};base64,${base64String}`;
         } catch (conversionError) {
-          console.error('Object conversion failed:', conversionError);
+          console.error("Object conversion failed:", conversionError);
         }
       }
 
       return null;
     } catch (error) {
-      console.error('Error converting second image:', error);
+      console.error("Error converting second image:", error);
       return null;
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-    
+
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ""
+        [name]: "",
       }));
     }
   };
 
   const handleFileChange = (e, imageNumber = 1) => {
     const selectedFile = e.target.files[0];
-    
+
     if (imageNumber === 1) {
       setFile(selectedFile);
-      
+
       if (selectedFile) {
         const reader = new FileReader();
         reader.onload = (e) => setFilePreview(e.target.result);
@@ -231,13 +230,13 @@ const UpdateProduct = () => {
       } else {
         setFilePreview(null);
       }
-      
+
       if (errors.file) {
-        setErrors(prev => ({ ...prev, file: "" }));
+        setErrors((prev) => ({ ...prev, file: "" }));
       }
     } else {
       setFile2(selectedFile);
-      
+
       if (selectedFile) {
         const reader = new FileReader();
         reader.onload = (e) => setFile2Preview(e.target.result);
@@ -245,22 +244,25 @@ const UpdateProduct = () => {
       } else {
         setFile2Preview(null);
       }
-      
+
       if (errors.file2) {
-        setErrors(prev => ({ ...prev, file2: "" }));
+        setErrors((prev) => ({ ...prev, file2: "" }));
       }
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name.trim()) newErrors.name = "Product name is required";
-    if (!formData.description.trim()) newErrors.description = "Description is required";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
     if (!formData.category) newErrors.category = "Please select a category";
-    if (!formData.price || formData.price <= 0) newErrors.price = "Please enter a valid price";
-    if (!formData.stockQuantity || formData.stockQuantity < 0) newErrors.stockQuantity = "Please enter a valid stock quantity";
-    
+    if (!formData.price || formData.price <= 0)
+      newErrors.price = "Please enter a valid price";
+    if (!formData.stockQuantity || formData.stockQuantity < 0)
+      newErrors.stockQuantity = "Please enter a valid stock quantity";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -272,7 +274,7 @@ const UpdateProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       showAlert("Please fix the errors below", "danger");
       return;
@@ -283,14 +285,14 @@ const UpdateProduct = () => {
     try {
       if (file || file2) {
         const imageFormData = new FormData();
-        
+
         if (file) {
           imageFormData.append("file", file);
         }
         if (file2) {
           imageFormData.append("file2", file2);
         }
-        
+
         imageFormData.append("name", formData.name.trim());
         imageFormData.append("description", formData.description.trim());
         imageFormData.append("category", formData.category);
@@ -312,7 +314,7 @@ const UpdateProduct = () => {
           price: formData.price,
           stockQuantity: formData.stockQuantity,
           brand: formData.brand.trim(),
-          productAvailable: formData.productAvailable
+          productAvailable: formData.productAvailable,
         };
 
         await api.put(`/products/${id}`, updateData);
@@ -322,17 +324,16 @@ const UpdateProduct = () => {
       setTimeout(() => {
         navigate("/admin/products/manage");
       }, 2000);
-      
     } catch (error) {
       console.error("Error updating product:", error);
-      
+
       let errorMessage = "Failed to update product. Please try again.";
       if (error.response?.data?.error) {
         errorMessage = error.response.data.error;
       } else if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       }
-      
+
       showAlert(errorMessage, "danger");
     } finally {
       setUpdating(false);
@@ -351,7 +352,10 @@ const UpdateProduct = () => {
   }
 
   return (
-    <Container className="py-4" style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
+    <Container
+      className="py-4"
+      style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}
+    >
       <Row className="justify-content-center">
         <Col lg={8}>
           <div className="mb-4">
@@ -398,14 +402,16 @@ const UpdateProduct = () => {
                               maxHeight: "200px",
                               objectFit: "cover",
                               borderRadius: "8px",
-                              border: "1px solid #dee2e6"
+                              border: "1px solid #dee2e6",
                             }}
                             onError={(e) => {
-                              console.error('Current image failed to load');
-                              e.target.style.display = 'none';
+                              console.error("Current image failed to load");
+                              e.target.style.display = "none";
                             }}
                           />
-                          <p className="text-muted mt-2 mb-0">Current Image 1</p>
+                          <p className="text-muted mt-2 mb-0">
+                            Current Image 1
+                          </p>
                         </div>
                       ) : (
                         <div className="text-center py-4 bg-light rounded">
@@ -432,14 +438,16 @@ const UpdateProduct = () => {
                               maxHeight: "200px",
                               objectFit: "cover",
                               borderRadius: "8px",
-                              border: "1px solid #dee2e6"
+                              border: "1px solid #dee2e6",
                             }}
                             onError={(e) => {
-                              console.error('Current image 2 failed to load');
-                              e.target.style.display = 'none';
+                              console.error("Current image 2 failed to load");
+                              e.target.style.display = "none";
                             }}
                           />
-                          <p className="text-muted mt-2 mb-0">Current Image 2</p>
+                          <p className="text-muted mt-2 mb-0">
+                            Current Image 2
+                          </p>
                         </div>
                       ) : (
                         <div className="text-center py-4 bg-light rounded">
@@ -465,10 +473,11 @@ const UpdateProduct = () => {
                     <Form.Control.Feedback type="invalid">
                       {errors.file}
                     </Form.Control.Feedback>
-                                        <Form.Text className="text-muted">
-                      Leave empty to keep current image. Supported formats: JPG, PNG, GIF
+                    <Form.Text className="text-muted">
+                      Leave empty to keep current image. Supported formats: JPG,
+                      PNG, GIF
                     </Form.Text>
-                    
+
                     {filePreview && (
                       <div className="mt-3 text-center">
                         <img
@@ -479,10 +488,12 @@ const UpdateProduct = () => {
                             maxHeight: "150px",
                             objectFit: "cover",
                             borderRadius: "8px",
-                            border: "2px solid #007bff"
+                            border: "2px solid #007bff",
                           }}
                         />
-                        <p className="text-primary mt-2 mb-0 small">New Image 1 Preview</p>
+                        <p className="text-primary mt-2 mb-0 small">
+                          New Image 1 Preview
+                        </p>
                       </div>
                     )}
                   </Col>
@@ -502,9 +513,10 @@ const UpdateProduct = () => {
                       {errors.file2}
                     </Form.Control.Feedback>
                     <Form.Text className="text-muted">
-                      Leave empty to keep current image. Supported formats: JPG, PNG, GIF
+                      Leave empty to keep current image. Supported formats: JPG,
+                      PNG, GIF
                     </Form.Text>
-                    
+
                     {file2Preview && (
                       <div className="mt-3 text-center">
                         <img
@@ -515,10 +527,12 @@ const UpdateProduct = () => {
                             maxHeight: "150px",
                             objectFit: "cover",
                             borderRadius: "8px",
-                            border: "2px solid #007bff"
+                            border: "2px solid #007bff",
                           }}
                         />
-                        <p className="text-primary mt-2 mb-0 small">New Image 2 Preview</p>
+                        <p className="text-primary mt-2 mb-0 small">
+                          New Image 2 Preview
+                        </p>
                       </div>
                     )}
                   </Col>
@@ -581,11 +595,11 @@ const UpdateProduct = () => {
 
                   <Col md={6} className="mb-3">
                     <Form.Label className="fw-semibold">
-                      <FaDollarSign className="me-2" />
+                      <FaRupeeSign className="me-2" />
                       Price *
                     </Form.Label>
                     <InputGroup>
-                      <InputGroup.Text>$</InputGroup.Text>
+                      <InputGroup.Text>₹</InputGroup.Text>
                       <Form.Control
                         type="number"
                         name="price"

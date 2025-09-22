@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/axios";
 import { Table, Button, Spinner, Alert } from "react-bootstrap";
-import { FaTrash, FaEdit } from "react-icons/fa";
+import { FaTrash, FaEdit, FaBox } from "react-icons/fa";
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -30,7 +30,8 @@ const ProductList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) return;
+    if (!window.confirm("Are you sure you want to delete this product?"))
+      return;
 
     try {
       await api.delete(`/products/${id}`);
@@ -39,6 +40,119 @@ const ProductList = () => {
     } catch (error) {
       console.error("Error deleting product:", error);
       showAlert("Failed to delete product.", "danger");
+    }
+  };
+
+  // Function to handle first image
+  const getImageSrc = (product) => {
+    try {
+      if (product.imageData && typeof product.imageData === "string") {
+        if (product.imageData.startsWith("data:")) {
+          return product.imageData;
+        }
+        const mimeType = product.imageType || "image/jpeg";
+        return `data:${mimeType};base64,${product.imageData}`;
+      }
+
+      if (product.imageData && Array.isArray(product.imageData)) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, product.imageData)
+        );
+        const mimeType = product.imageType || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData && product.imageData.constructor === Uint8Array) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, Array.from(product.imageData))
+        );
+        const mimeType = product.imageType || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData && product.imageData.data) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, product.imageData.data)
+        );
+        const mimeType = product.imageType || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData && typeof product.imageData === "object") {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData));
+          const base64String = btoa(
+            String.fromCharCode.apply(null, uint8Array)
+          );
+          const mimeType = product.imageType || "image/jpeg";
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error("Object conversion failed:", conversionError);
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error converting image:", error);
+      return null;
+    }
+  };
+
+  // Function to handle second image
+  const getImageSrc2 = (product) => {
+    try {
+      if (product.imageData2 && typeof product.imageData2 === "string") {
+        if (product.imageData2.startsWith("data:")) {
+          return product.imageData2;
+        }
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${product.imageData2}`;
+      }
+
+      if (product.imageData2 && Array.isArray(product.imageData2)) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, product.imageData2)
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && product.imageData2.constructor === Uint8Array) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, Array.from(product.imageData2))
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && product.imageData2.data) {
+        const base64String = btoa(
+          String.fromCharCode.apply(null, product.imageData2.data)
+        );
+        const mimeType = product.imageType2 || "image/jpeg";
+        return `data:${mimeType};base64,${base64String}`;
+      }
+
+      if (product.imageData2 && typeof product.imageData2 === "object") {
+        try {
+          const uint8Array = new Uint8Array(Object.values(product.imageData2));
+          const base64String = btoa(
+            String.fromCharCode.apply(null, uint8Array)
+          );
+          const mimeType = product.imageType2 || "image/jpeg";
+          return `data:${mimeType};base64,${base64String}`;
+        } catch (conversionError) {
+          console.error(
+            "Object conversion failed for image 2:",
+            conversionError
+          );
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Error converting second image:", error);
+      return null;
     }
   };
 
@@ -68,7 +182,7 @@ const ProductList = () => {
             <th>Category</th>
             <th>Price (₹)</th>
             <th>Stock</th>
-            <th>Image</th>
+            <th>Images</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -80,44 +194,94 @@ const ProductList = () => {
               </td>
             </tr>
           ) : (
-            products.map((product) => (
-              <tr key={product.id}>
-                <td>{product.id}</td>
-                <td>{product.name}</td>
-                <td>{product.category}</td>
-                <td>{product.price}</td>
-                <td>{product.stockQuantity}</td>
-                <td>
-                  {product.imageUrl ? (
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      style={{ height: "50px", borderRadius: "5px" }}
-                    />
-                  ) : (
-                    "No image"
-                  )}
-                </td>
-                <td>
-                  <Button
-                    variant="warning"
-                    size="sm"
-                    className="me-2"
-                    title="Edit Product"
-                  >
-                    <FaEdit />
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDelete(product.id)}
-                    title="Delete Product"
-                  >
-                    <FaTrash />
-                  </Button>
-                </td>
-              </tr>
-            ))
+            products.map((product) => {
+              const imageSrc = getImageSrc(product);
+              const imageSrc2 = getImageSrc2(product);
+
+              return (
+                <tr key={product.id}>
+                  <td>{product.id}</td>
+                  <td>{product.name}</td>
+                  <td>{product.category}</td>
+                  <td>{product.price}</td>
+                  <td>{product.stockQuantity}</td>
+                  <td>
+                    <div className="d-flex gap-1">
+                      {imageSrc ? (
+                        <img
+                          src={imageSrc}
+                          alt={`${product.name} - Image 1`}
+                          style={{
+                            height: "40px",
+                            width: "40px",
+                            objectFit: "cover",
+                            borderRadius: "5px",
+                            border: "1px solid #dee2e6",
+                          }}
+                          onError={(e) => {
+                            console.error(
+                              "Image 1 failed to load:",
+                              product.name
+                            );
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className="bg-light d-flex align-items-center justify-content-center"
+                          style={{
+                            width: "40px",
+                            height: "40px",
+                            borderRadius: "5px",
+                            border: "1px solid #dee2e6",
+                          }}
+                        >
+                          <FaBox className="text-muted" size={16} />
+                        </div>
+                      )}
+                      {imageSrc2 && (
+                        <img
+                          src={imageSrc2}
+                          alt={`${product.name} - Image 2`}
+                          style={{
+                            height: "40px",
+                            width: "40px",
+                            objectFit: "cover",
+                            borderRadius: "5px",
+                            border: "1px solid #dee2e6",
+                          }}
+                          onError={(e) => {
+                            console.error(
+                              "Image 2 failed to load:",
+                              product.name
+                            );
+                            e.target.style.display = "none";
+                          }}
+                        />
+                      )}
+                    </div>
+                  </td>
+                  <td>
+                    <Button
+                      variant="warning"
+                      size="sm"
+                      className="me-2"
+                      title="Edit Product"
+                    >
+                      <FaEdit />
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(product.id)}
+                      title="Delete Product"
+                    >
+                      <FaTrash />
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })
           )}
         </tbody>
       </Table>
