@@ -25,7 +25,6 @@ const AdminLogin = ({ onClose }) => {
         return;
       }
 
-      // ✅ Store admin data as "user" with ADMIN role
       localStorage.setItem("user", JSON.stringify({
         id: loggedInAdmin.id,
         name: loggedInAdmin.name || "Admin",
@@ -34,7 +33,6 @@ const AdminLogin = ({ onClose }) => {
         token: loggedInAdmin.token
       }));
 
-      // ✅ Store token separately if needed
       if (loggedInAdmin.token) {
         localStorage.setItem("token", loggedInAdmin.token);
       }

@@ -99,7 +99,7 @@ const ManageProduct = () => {
     setShowDeleteModal(true);
   };
 
-  // Fixed image conversion function
+  // img conversion function
   const getImageSrc = (product) => {
     try {
       console.log("Processing image for product:", product.name, {

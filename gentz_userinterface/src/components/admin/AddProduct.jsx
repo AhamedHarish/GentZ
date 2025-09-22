@@ -145,15 +145,14 @@ const AddProduct = () => {
 
     const submitData = new FormData();
     
-    // Add the first image (required)
+    // add first img req
     submitData.append("file", file1);
     
-    // Add the second image if selected (optional)
+    // add sec img optional
     if (file2) {
       submitData.append("file2", file2);
     }
     
-    // Add all other form data
     submitData.append("name", formData.name.trim());
     submitData.append("description", formData.description.trim());
     submitData.append("category", formData.category);

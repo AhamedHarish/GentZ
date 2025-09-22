@@ -90,9 +90,6 @@ const Home = () => {
   return (
     <div style={{ backgroundColor: '#f8f9fa' }}>
       <HeroCarousel />
-      <SummerSaleSection />
-      <NewCollection />
-      
       {/* Featured Products Section */}
       <Container className="py-5">
         <Row className="mb-4">
@@ -230,6 +227,8 @@ const Home = () => {
           </Col>
         </Row>
       </Container>
+      <SummerSaleSection />
+      <NewCollection />
 
     </div>
   );

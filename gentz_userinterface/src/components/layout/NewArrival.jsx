@@ -26,14 +26,12 @@ const NewArrival = () => {
             >
               <img src={cat.img} alt={cat.name} className="img-fluid w-100" />
 
-              {/* Top overlay for "New Arrivals" title */}
               {index === 1 && (
                 <div className="overlay-top z-1 text-center">
                   <h2 className="main-title">New Arrivals</h2>
                 </div>
               )}
 
-              {/* Hover overlay with category name pop-up */}
               <div className="hover-overlay">
                 <h3 className="hover-text">{cat.name}</h3>
               </div>

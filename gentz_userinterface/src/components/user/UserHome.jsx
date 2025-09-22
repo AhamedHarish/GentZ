@@ -36,7 +36,6 @@ const UserHome = () => {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // Add this helper function at the top of your UserHome component
   const dispatchStorageEvent = (eventType) => {
       window.dispatchEvent(new Event(eventType));
   };
@@ -199,7 +198,7 @@ const UserHome = () => {
 
   setCart(newCart);
   saveCartToStorage(newCart);
-  dispatchStorageEvent("cartUpdated"); // Add this line
+  dispatchStorageEvent("cartUpdated"); 
   showToast(`${product.name} added to cart!`, "success");
   };
 
@@ -235,7 +234,7 @@ const UserHome = () => {
 
   setWishlist(newWishlist);
   saveWishlistToStorage(newWishlist);
-  dispatchStorageEvent("wishlistUpdated"); // Add this line
+  dispatchStorageEvent("wishlistUpdated"); 
 };
 
   const isInWishlist = (productId) => {
@@ -556,7 +555,7 @@ const UserHome = () => {
                     {selectedProduct.brand && (
                       <p className="text-muted mb-2">Brand: {selectedProduct.brand}</p>
                     )}
-                    <h3 className="text-primary">${selectedProduct.price}</h3>
+                    <h3 className="text-primary">₹{selectedProduct.price}</h3>
                   </div>
                   
                   <div className="mb-3">

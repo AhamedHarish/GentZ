@@ -8,7 +8,6 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
 
-  // Fetch products from backend
   const fetchProducts = async () => {
     try {
       const response = await api.get("/products");

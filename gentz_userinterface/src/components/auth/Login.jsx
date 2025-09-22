@@ -24,7 +24,7 @@ const Login = ({ onClose }) => {
         setError("This account is not authorized for user access");
         return;
       }
-      // Store user data
+      
       localStorage.setItem("user", JSON.stringify({
         id: loggedInUser.id,
         name: loggedInUser.name,

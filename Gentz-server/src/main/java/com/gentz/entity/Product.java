@@ -158,21 +158,18 @@ public class Product {
     @Column(name = "release_date")
     private LocalDate releaseDate;
     
-    // First Image
     private String imageName;
     private String imageType;
     @Lob
     @Column(name = "image_data", columnDefinition = "LONGBLOB")
     private byte[] imageData;
     
-    // Second Image 
     private String imageName2;
     private String imageType2;
     @Lob
     @Column(name = "image_data2", columnDefinition = "LONGBLOB")
     private byte[] imageData2;
 
-    // Getters and Setters 
     public int getId() {
         return id;
     }

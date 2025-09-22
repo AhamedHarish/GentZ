@@ -11,7 +11,6 @@ const Navbar = () => {
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
 
-  // ✅ Memoized function to avoid infinite re-renders
   const loadCartAndWishlist = useCallback(() => {
     if (user) {
       const savedCart = localStorage.getItem(`cart_${user.id}`);
@@ -22,14 +21,12 @@ const Navbar = () => {
     }
   }, [user]);
 
-  // Load cart and wishlist on component mount and when user changes
   useEffect(() => {
     if (user) {
       loadCartAndWishlist();
     }
   }, []);
 
-  // Listen for storage changes to update counts in real-time
   useEffect(() => {
     const handleStorageChange = () => {
       if (user) {
@@ -78,7 +75,6 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Collapsible content */}
         <div className="collapse navbar-collapse" id="navbarNav">
           {/* Nav Links */}
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
@@ -107,7 +103,7 @@ const Navbar = () => {
                     : user.email.split("@")[0]}
                 </span>
 
-                {/* USER only: Wishlist & Cart */}
+                {/* USER only Wishlist & Cart */}
                 {user.role !== "ADMIN" && (
                   <>
                     <Button

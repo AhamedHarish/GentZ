@@ -76,7 +76,7 @@ const UpdateProduct = () => {
         productAvailable: product.productAvailable !== false
       });
 
-      // Set current images if they exist
+      // update img 
       const imageSrc = getImageSrc(product);
       if (imageSrc) {
         setCurrentImage(imageSrc);
@@ -95,7 +95,6 @@ const UpdateProduct = () => {
     }
   };
 
-  // Enhanced image conversion function for first image
   const getImageSrc = (product) => {
     try {
       if (product.imageData && typeof product.imageData === 'string') {
@@ -150,7 +149,6 @@ const UpdateProduct = () => {
     }
   };
 
-  // Enhanced image conversion function for second image
   const getImageSrc2 = (product) => {
     try {
       if (product.imageData2 && typeof product.imageData2 === 'string') {
@@ -284,7 +282,6 @@ const UpdateProduct = () => {
 
     try {
       if (file || file2) {
-        // If there are new images, use FormData to update everything including images
         const imageFormData = new FormData();
         
         if (file) {
@@ -308,7 +305,6 @@ const UpdateProduct = () => {
           },
         });
       } else {
-        // If no new images, just update the product details
         const updateData = {
           name: formData.name.trim(),
           description: formData.description.trim(),

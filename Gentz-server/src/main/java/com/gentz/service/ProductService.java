@@ -37,7 +37,6 @@
 //        return false;
 //    }
 //
-//    // ✅ Save product with image - FIXED
 //    public Product saveProductWithImage(MultipartFile file, String name, String description, String category, String price, String stockQuantity) throws IOException {
 //        Product product = new Product();
 //        product.setName(name);
@@ -207,12 +206,11 @@ public class ProductService {
         }).orElse(null);
     }
 
-    // Keep existing method for backward compatibility
     public Product saveProductWithImage(MultipartFile file, String name, String description, String category, String price, String stockQuantity) throws IOException {
         return saveProductWithImages(file, null, name, description, category, price, stockQuantity, "");
     }
 
-    // Update product without image update
+    // Update product without image 
     public Product updateProduct(Integer id, Product productDetails) {
         return productRepo.findById(id).map(product -> {
             product.setName(productDetails.getName());

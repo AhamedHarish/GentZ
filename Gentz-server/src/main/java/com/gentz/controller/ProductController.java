@@ -119,11 +119,11 @@ public class ProductController {
         return ResponseEntity.ok(savedProduct);
     }
 
-    // Create Product with Images (UPDATED to handle 2 images)
+    // Create Product with Images
     @PostMapping("/with-image")
     public ResponseEntity<?> createProductWithImage(
             @RequestParam("file") MultipartFile file1,
-            @RequestParam(value = "file2", required = false) MultipartFile file2, // Second image is optional
+            @RequestParam(value = "file2", required = false) MultipartFile file2, 
             @RequestParam("name") String name,
             @RequestParam("description") String description,
             @RequestParam("category") String category,
@@ -193,27 +193,23 @@ public class ProductController {
         }
     }
 
-    // Get All Products
     @GetMapping
     public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
 
-    // Get Product by ID
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Integer id) {
         Product product = productService.getProductById(id);
         return product != null ? ResponseEntity.ok(product) : ResponseEntity.notFound().build();
     }
 
-    // Update Product (without image)
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(@PathVariable Integer id, @RequestBody Product productDetails) {
         Product updatedProduct = productService.updateProduct(id, productDetails);
         return updatedProduct != null ? ResponseEntity.ok(updatedProduct) : ResponseEntity.notFound().build();
     }
 
-    // Delete Product
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
         boolean deleted = productService.deleteProduct(id);

@@ -34,7 +34,6 @@ const AdminHome = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
 
-  // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -73,7 +72,6 @@ const AdminHome = () => {
     setShowDeleteModal(true);
   };
 
-  // Fixed image conversion function
   const getImageSrc = (product) => {
     try {
       // Method 1: If imageData is already a base64 string

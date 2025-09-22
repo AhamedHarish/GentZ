@@ -115,7 +115,6 @@ const Cart = () => {
   };
 
   const moveToWishlist = (product) => {
-    // Remove from cart
     removeFromCart(product.id);
     
     // Add to wishlist
@@ -149,7 +148,6 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    // Here you would integrate with a payment processor
     alert("Checkout functionality would be implemented here!");
     setShowCheckoutModal(false);
   };
