@@ -15,7 +15,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState({ show: false, message: "", variant: "" });
   
-  // Image carousel state - track current image for each product
   const [currentImageIndex, setCurrentImageIndex] = useState({});
 
   useEffect(() => {
