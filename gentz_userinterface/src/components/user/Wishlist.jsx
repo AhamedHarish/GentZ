@@ -173,8 +173,8 @@ const Wishlist = () => {
               <div>
                 <Button
                   variant="outline-secondary"
-                  // onClick={() => navigate("/user/home")}
-                  onClick={() => (window.location.href = "/user/home")}
+                     onClick={() => navigate("/user/home")}
+                  // onClick={() => (window.location.href = "/user/home")}
                   className="mb-2"
                 >
                   <FaArrowLeft className="me-2" />
@@ -222,8 +222,8 @@ const Wishlist = () => {
                   <Button
                     variant="primary"
                     size="lg"
-                    // onClick={() => navigate("/user/home")}
-                    onClick={() => (window.location.href = "/user/home")}
+                      onClick={() => navigate("/user/home")}
+                    // onClick={() => (window.location.href = "/user/home")}
                   >
                     Start Shopping
                   </Button>
@@ -385,8 +385,8 @@ const Wishlist = () => {
                     </Button>
                     <Button
                       variant="outline-secondary"
-                      // onClick={() => navigate("/user/home")}
-                      onClick={() => (window.location.href = "/user/home")}
+                        onClick={() => navigate("/user/home")}
+                      //onClick={() => (window.location.href = "/user/home")}
                     >
                       Continue Shopping
                     </Button>
